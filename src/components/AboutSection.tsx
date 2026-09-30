@@ -165,7 +165,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onOpenContact }) => 
   ];
 
   return (
-    <section id="about" className="py-16 sm:py-24 px-3 sm:px-8 bg-slate-50 border-b border-slate-200 overflow-hidden relative">
+    <section id="about" className="scroll-mt-24 sm:scroll-mt-28 py-16 sm:py-24 px-3 sm:px-8 bg-slate-50 border-b border-slate-200 overflow-hidden relative">
       {/* Background Subtle Hex Pattern */}
       <div className="absolute inset-0 opacity-[0.035] pointer-events-none bg-[radial-gradient(#0B2559_1.5px,transparent_1.5px)] [background-size:24px_24px]" />
 

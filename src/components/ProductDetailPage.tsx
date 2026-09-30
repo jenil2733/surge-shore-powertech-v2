@@ -136,7 +136,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
         </div>
 
         {/* Main 2-Column Product Showcase Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start mb-8 sm:mb-12 lg:mb-14">
           {/* Left Column: Interactive Photorised Studio */}
           <motion.div 
             initial={{ opacity: 0, y: yShift }}
@@ -245,7 +245,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
               </div>
 
               {/* Sub-Category Interactive Selection (Flange Mounted vs Foot Mounted OR Relay type vs Servo type) */}
-              {product.subCategories && product.subCategories.length > 0 && (
+              {product.subCategories && product.subCategories.length > 0 && product.id !== 'electrical-panels' && product.type !== 'panel' && (
                 <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-slate-50 to-blue-50/40 border-2 border-[#0B2559]/20 space-y-2.5">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#0B2559] flex items-center gap-1.5">

@@ -20,87 +20,87 @@ export default function App() {
   const [currentView, setCurrentView] = useState<'home' | 'product-detail'>('home');
   const [selectedProduct, setSelectedProduct] = useState<ProductItem | null>(null);
 
-  // Sync state with browser hash routing (supports direct links e.g. #/product/ci-induction-motors)
+  // Single-page navigation: ensure address bar URL remains 100% clean (no hash, no query parameters)
   useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash;
-      if (hash.startsWith('#/product/') || hash.startsWith('#product-')) {
-        const productId = hash.replace('#/product/', '').replace('#product-', '');
-        const found = PRODUCTS_DATA.find((p) => p.id === productId);
+    // If URL has any lingering hash from previous sessions, clear it cleanly without page reload
+    if (window.location.hash) {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+
+    // Handle browser back/forward buttons using HTML5 history state while keeping the URL clean
+    const handlePopState = (e: PopStateEvent) => {
+      if (e.state?.view === 'product-detail' && e.state?.productId) {
+        const found = PRODUCTS_DATA.find((p) => p.id === e.state.productId);
         if (found) {
           setSelectedProduct(found);
           setCurrentView('product-detail');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
           return;
         }
       }
-
-      // If hash is a section like #products or #/products or empty
-      if (hash === '' || hash === '#' || hash === '#/' || hash === '#hero') {
-        setCurrentView('home');
-        setActiveSection('hero');
-      } else {
-        const cleanSection = hash.replace('#/', '').replace('#', '');
-        const validSections = ['products', 'about', 'quality', 'contact'];
-        if (validSections.includes(cleanSection)) {
-          setCurrentView('home');
-          setActiveSection(cleanSection);
-          setTimeout(() => {
-            const elem = document.getElementById(cleanSection);
-            if (elem) {
-              elem.scrollIntoView({ behavior: 'smooth' });
-            }
-          }, 50);
-        }
-      }
+      // Return to single-page home overview
+      setCurrentView('home');
+      setSelectedProduct(null);
     };
 
-    // Initial check
-    handleHashChange();
-
-    window.addEventListener('hashchange', handleHashChange);
-    window.addEventListener('popstate', handleHashChange);
+    window.addEventListener('popstate', handlePopState);
     return () => {
-      window.removeEventListener('hashchange', handleHashChange);
-      window.removeEventListener('popstate', handleHashChange);
+      window.removeEventListener('popstate', handlePopState);
     };
   }, []);
 
   const handleSelectProduct = (product: ProductItem) => {
     setSelectedProduct(product);
     setCurrentView('product-detail');
-    window.location.hash = `#/product/${product.id}`;
+    // Push in-memory history state keeping URL identical to current path (URL never changes)
+    window.history.pushState(
+      { view: 'product-detail', productId: product.id },
+      '',
+      window.location.pathname + window.location.search
+    );
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleBackToCatalog = () => {
-    setCurrentView('home');
-    setSelectedProduct(null);
-    window.location.hash = `#/products`;
+    if (window.history.state?.view === 'product-detail') {
+      window.history.back();
+    } else {
+      setCurrentView('home');
+      setSelectedProduct(null);
+    }
     setTimeout(() => {
       const elem = document.getElementById('products');
       if (elem) {
         elem.scrollIntoView({ behavior: 'smooth' });
       }
-    }, 50);
+    }, 60);
   };
 
   const scrollToSection = (sectionId: string) => {
-    if (currentView === 'product-detail') {
-      setCurrentView('home');
-      window.location.hash = `#/${sectionId}`;
-      setTimeout(() => {
-        const elem = document.getElementById(sectionId);
-        if (elem) {
-          elem.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 50);
-    } else {
-      setActiveSection(sectionId);
-      window.location.hash = `#/${sectionId}`;
+    const performScroll = () => {
       const elem = document.getElementById(sectionId);
       if (elem) {
-        elem.scrollIntoView({ behavior: 'smooth' });
+        // Offset for the fixed header (~96px) so heading is fully visible below navbar
+        const headerOffset = window.innerWidth < 640 ? 84 : 104;
+        const elementPosition = elem.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        window.scrollTo({
+          top: Math.max(0, offsetPosition),
+          behavior: 'smooth'
+        });
       }
+    };
+
+    if (currentView === 'product-detail') {
+      setCurrentView('home');
+      setSelectedProduct(null);
+      if (window.history.state?.view === 'product-detail') {
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+      setTimeout(performScroll, 80);
+    } else {
+      setActiveSection(sectionId);
+      performScroll();
     }
   };
 

@@ -306,7 +306,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 </div>
 
                 {/* Sub-Category Switcher */}
-                {product.subCategories && product.subCategories.length > 0 && (
+                {product.subCategories && product.subCategories.length > 0 && product.id !== 'electrical-panels' && product.type !== 'panel' && (
                   <div className="p-3 bg-white rounded-xl border border-slate-200 shadow-xs space-y-1.5">
                     <div className="flex items-center justify-between text-[11px] font-bold text-slate-700">
                       <span>{product.type === 'stabilizer' ? 'Stabilizer Type:' : product.type === 'panel' ? 'Automation Panel Type:' : 'Mounting Sub-Category:'}</span>

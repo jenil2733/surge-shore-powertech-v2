@@ -36,7 +36,7 @@ export const ContactSection: React.FC = () => {
   };
 
   return (
-    <section id="contact" className="py-16 sm:py-20 px-3 sm:px-8 bg-slate-50 border-b border-slate-200 overflow-hidden">
+    <section id="contact" className="scroll-mt-24 sm:scroll-mt-28 py-16 sm:py-20 px-3 sm:px-8 bg-slate-50 border-b border-slate-200 overflow-hidden">
       <div className="max-w-7xl mx-auto space-y-8 sm:space-y-12">
         {/* Header */}
         <motion.div 
