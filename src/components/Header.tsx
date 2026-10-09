@@ -12,11 +12,13 @@ import {
   ShieldCheck, 
   FileText, 
   ArrowRight,
-  Download
+  Download,
+  Loader2,
+  CheckCircle2
 } from 'lucide-react';
 import { SurgeShoreLogo } from './SurgeShoreLogo';
 import { COMPANY_INFO } from '../data/products';
-import { downloadCatalogDirectly } from '../utils/catalogPdfData';
+import { downloadBothPDFs } from '../utils/catalogDownloader';
 
 interface HeaderProps {
   activeSection: string;
@@ -29,6 +31,19 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [downloadStatus, setDownloadStatus] = useState<'idle' | 'downloading' | 'completed'>('idle');
+
+  const handleDownloadBothPDFs = async () => {
+    if (downloadStatus === 'downloading') return;
+    setDownloadStatus('downloading');
+    try {
+      await downloadBothPDFs();
+      setDownloadStatus('completed');
+      setTimeout(() => setDownloadStatus('idle'), 3500);
+    } catch {
+      setDownloadStatus('idle');
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -129,6 +144,31 @@ export const Header: React.FC<HeaderProps> = ({
                 </button>
               );
             })}
+
+            {/* Desktop Download Catalogs button */}
+            <button
+              onClick={handleDownloadBothPDFs}
+              disabled={downloadStatus === 'downloading'}
+              className="ml-2 min-h-[40px] px-3.5 py-2 rounded-xl bg-[#FF6B00] hover:bg-[#E56000] text-white text-xs xl:text-sm font-bold transition-all shadow-sm hover:shadow-md flex items-center gap-2 cursor-pointer active:scale-95 disabled:opacity-80 disabled:cursor-wait shrink-0"
+              title="Download Surge Shore Product Catalogs"
+            >
+              {downloadStatus === 'downloading' ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Downloading...</span>
+                </>
+              ) : downloadStatus === 'completed' ? (
+                <>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                  <span>Downloaded!</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download Catalogs</span>
+                </>
+              )}
+            </button>
           </nav>
 
           {/* Quick Action & Mobile Menu Toggle */}
@@ -192,20 +232,6 @@ export const Header: React.FC<HeaderProps> = ({
               })}
 
               <div className="pt-4 mt-2 border-t border-slate-100 flex flex-col gap-2.5">
-                {/* Download Product Catalog PDF Option (Direct Original Download) */}
-                <a
-                  href="/downloads/Surge-Shore-Product-Catalog.pdf"
-                  download="Surge-Shore-Product-Catalog.pdf"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    downloadCatalogDirectly();
-                  }}
-                  className="min-h-[44px] w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#FF6B00] to-[#FF851A] hover:from-[#E56000] hover:to-[#FF6B00] text-white text-xs sm:text-sm font-bold text-center flex items-center justify-center gap-2 shadow-md active:scale-98 transition-all cursor-pointer"
-                >
-                  <Download className="w-4 h-4 shrink-0" />
-                  <span>Download Catalog PDF</span>
-                </a>
-
                 <a
                   href={`tel:${COMPANY_INFO.phone.replace(/\s+/g, '')}`}
                   className="min-h-[44px] w-full py-3 px-4 rounded-xl bg-[#0B2559] text-white text-xs sm:text-sm font-bold text-center flex items-center justify-center gap-2 shadow-sm active:scale-98"
@@ -213,6 +239,31 @@ export const Header: React.FC<HeaderProps> = ({
                   <Phone className="w-4 h-4 text-[#FF6B00]" />
                   <span>Direct Call: {COMPANY_INFO.phone}</span>
                 </a>
+
+                {/* Download Catalogs button above WhatsApp button */}
+                <button
+                  onClick={handleDownloadBothPDFs}
+                  disabled={downloadStatus === 'downloading'}
+                  className="min-h-[44px] w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#FF6B00] to-[#FF851A] hover:from-[#E56000] hover:to-[#FF6B00] text-white text-xs sm:text-sm font-bold text-center flex items-center justify-center gap-2 shadow-md active:scale-98 transition-all cursor-pointer disabled:opacity-80 disabled:cursor-wait"
+                >
+                  {downloadStatus === 'downloading' ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Downloading Catalogs...</span>
+                    </>
+                  ) : downloadStatus === 'completed' ? (
+                    <>
+                      <CheckCircle2 className="w-4 h-4 text-white" />
+                      <span>Downloaded Catalogs!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-4 h-4" />
+                      <span>Download Catalogs</span>
+                    </>
+                  )}
+                </button>
+
                 <a
                   href={`https://wa.me/919173959019?text=Hello%20Surge%20Shore%20Powertech%2C%20I%20am%20interested%20in%20your%20motors%20and%20panels.`}
                   target="_blank"

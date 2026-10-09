@@ -5,14 +5,16 @@ import {
   ArrowUpRight,
   MessageSquare,
   ArrowRight,
-  Download
+  Download,
+  Loader2,
+  CheckCircle2
 } from 'lucide-react';
 import { PRODUCTS_DATA } from '../data/products';
 import { ProductItem } from '../types';
 import { ProductPhotoview } from './ProductPhotoview';
 import { ProductDetailModal } from './ProductDetailModal';
-import { downloadCatalogDirectly } from '../utils/catalogPdfData';
 import { useIsMobile } from '../utils/animations';
+import { downloadBothPDFs } from '../utils/catalogDownloader';
 
 interface ProductCatalogProps {
   onOpenContact: () => void;
@@ -34,6 +36,20 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
       onSelectProduct(product);
     } else {
       setSelectedProductForModal(product);
+    }
+  };
+
+  const [downloadStatus, setDownloadStatus] = useState<'idle' | 'downloading' | 'completed'>('idle');
+
+  const handleDownloadBothPDFs = async () => {
+    if (downloadStatus === 'downloading') return;
+    setDownloadStatus('downloading');
+    try {
+      await downloadBothPDFs();
+      setDownloadStatus('completed');
+      setTimeout(() => setDownloadStatus('idle'), 3500);
+    } catch {
+      setDownloadStatus('idle');
     }
   };
 
@@ -67,29 +83,30 @@ export const ProductCatalog: React.FC<ProductCatalogProps> = ({
             </p>
           </div>
 
-          {/* Quick PDF Catalog Download & WhatsApp Request (Direct Download) */}
-          <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
-            <a
-              href="/downloads/Surge-Shore-Product-Catalog.pdf"
-              download="Surge-Shore-Product-Catalog.pdf"
-              onClick={(e) => {
-                e.preventDefault();
-                downloadCatalogDirectly();
-              }}
-              className="min-h-[44px] w-full sm:w-auto px-5 py-3 rounded-2xl bg-[#FF6B00] hover:bg-[#E56000] text-white text-xs sm:text-sm font-bold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+          {/* Download Both PDFs Button */}
+          <div className="shrink-0">
+            <button
+              onClick={handleDownloadBothPDFs}
+              disabled={downloadStatus === 'downloading'}
+              className="min-h-[44px] w-full sm:w-auto px-5 py-3 rounded-2xl bg-[#FF6B00] hover:bg-[#E56000] text-white text-xs sm:text-sm font-bold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2.5 cursor-pointer active:scale-95 disabled:opacity-80 disabled:cursor-wait"
             >
-              <Download className="w-4 h-4" />
-              <span>Download Catalog PDF</span>
-            </a>
-            <a
-              href="https://wa.me/919173959019?text=Hello%20Surge%20Shore%2C%20please%20send%20me%20your%20full%20PDF%20technical%20catalog%20and%20OEM%20price%20sheet."
-              target="_blank"
-              rel="noreferrer"
-              className="min-h-[44px] w-full sm:w-auto px-4 py-3 rounded-2xl bg-emerald-50 text-[#25D366] hover:bg-[#25D366] hover:text-white border border-emerald-200 text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
-            >
-              <MessageSquare className="w-4 h-4" />
-              <span>WhatsApp PDF</span>
-            </a>
+              {downloadStatus === 'downloading' ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Downloading Catalogs...</span>
+                </>
+              ) : downloadStatus === 'completed' ? (
+                <>
+                  <CheckCircle2 className="w-4 h-4 text-white" />
+                  <span>Downloaded Catalogs!</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4" />
+                  <span>Download Catalogs</span>
+                </>
+              )}
+            </button>
           </div>
         </motion.div>
 
