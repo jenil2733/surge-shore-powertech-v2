@@ -86,9 +86,9 @@ export const Header: React.FC<HeaderProps> = ({
               <Mail className="w-3.5 h-3.5 text-[#FF6B00] shrink-0" />
               <span className="text-[11px] sm:text-xs truncate max-w-[180px] sm:max-w-none">{COMPANY_INFO.email}</span>
             </a>
-            <div className="hidden lg:flex items-center gap-1.5 text-slate-300">
+            <div className="hidden lg:flex items-center gap-1.5 text-slate-300" title={COMPANY_INFO.address}>
               <MapPin className="w-3.5 h-3.5 text-[#FF6B00] shrink-0" />
-              <span className="truncate max-w-sm text-xs">Copper Ind. Area, Rajkot - 360022, Gujarat</span>
+              <span className="truncate max-w-sm text-xs">Rajkot, Gujarat, India</span>
             </div>
           </div>
 
